@@ -202,3 +202,6 @@ def affected_area(graph, nodeA, nodeB, hazard_intensity, exit_array):
             seen_nodes.append(node)
 
     set_nearest_exit(graph, exit_array)
+
+def remove_fire(graph, nodeA, nodeB):
+    a=5

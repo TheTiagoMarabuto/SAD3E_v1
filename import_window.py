@@ -10,6 +10,10 @@ def show_import_window(graph_file_path, plant_path, exit_array):
     graph = dij.build_graph(t.read_json(graph_file_path))  # build graph from .json filename
     dij.set_nearest_exit(graph, exit_array)  # run dijkstra and calculate all distances and paths
 
+    ######################### VARIABLES #########################
+    active_fires = []
+    #############################################################
+
     ######################### FUNCTIONS #########################
     # config function for choosing fire between nodes and intensity
     def _config(sender, app_data):
@@ -19,12 +23,17 @@ def show_import_window(graph_file_path, plant_path, exit_array):
             dpg.configure_item("input_intensity", show=True)
         if sender == "input_intensity":
             dpg.configure_item("add_fire_button", show=True)
+        if sender == "active_fires_list":
+            dpg.configure_item("remove_fire_button", show=True)
 
     def _add_fire(sender):
         # get values from widgets
         node1 = dpg.get_value("node1_combo")
         node2 = dpg.get_value("node2_combo")
         intensity = dpg.get_value("input_intensity")
+        # Add to active fires
+        active_fires.append((node1, node2, intensity))
+        dpg.configure_item("active_fires_list", items=active_fires)
 
         # Compute affected areas
         dij.affected_area(graph, graph[node1], graph[node2], intensity, exit_array)
@@ -44,7 +53,21 @@ def show_import_window(graph_file_path, plant_path, exit_array):
         # Set widgets to initial states
         dpg.configure_item("node1_combo", default_value="")
         dpg.configure_item("node2_combo", show=False)
-        dpg.configure_item("input_intensity", default_value="", show=False)
+        dpg.configure_item("input_intensity", default_value=0, show=False)
+
+    def _remove_fire(sender):
+        # Get fire location
+        node1 = dpg.get_value("active_fires_list")[0]
+        node2 = dpg.get_value("active_fires_list")[1]
+
+
+        # Remove fire and affected area
+        label="fire_" + node1 + "_" + node2
+        dij.remove_fire(graph, graph[node1], graph[node2])
+
+        #dpg.configure_item("fire_" + node1 + "_" + node2, show=False)    <--PROBLEM HERE
+
+
 
     #############################################################
 
@@ -102,7 +125,9 @@ def show_import_window(graph_file_path, plant_path, exit_array):
                 dpg.add_menu_item(tag="add_fire", label="Add Fire", callback=lambda: dpg.configure_item("add_fire_popup", show=True))
 
                 # Remove Fire Action
-                dpg.add_menu_item(tag="remove_fire", label="Remove Fire")
+                with dpg.menu(tag="remove_fire_menu", label="Remove Fire"):
+                    dpg.add_combo(active_fires, tag="active_fires_list", label="Active Fires", callback=_config)
+                    dpg.add_button(tag="remove_fire_button", label="Remove Fire", show=False, callback=_remove_fire)
 
             # Settings Menu
             with dpg.menu(tag="settings_menu", label="Settings"):

@@ -31,6 +31,8 @@ add_fire_popup_node2 = None
 add_fire_popup_hazard_intensity = None
 
 
+active_fires = [("A","B"), ("C", "D"), ("E", "F")]
+
 def _get_node(sender, app_data, user_data):
     if user_data == 1:
         fire_nodes[0] = app_data
@@ -96,7 +98,40 @@ with dpg.window(label="Visualization", width=1200, height=-1, no_collapse=True, 
             dpg.add_menu_item(label="Stop Simulation")
         with dpg.menu(label="Fire"):
             dpg.add_menu_item(label="Add Fire", callback=lambda: dpg.configure_item("add_fire_popup", show=True))
-            dpg.add_menu_item(label="Remove Fire")
+
+
+
+
+
+
+
+
+
+            with dpg.menu(tag="remove_fire_menu", label="Remove Fire"):
+                dpg.add_combo(active_fires, tag="active_fires_list", label="Active Fires", callback=_config)
+                dpg.add_button(tag="remove_fire_button", label="Remove Fire", show=False, callback=_remove_fire)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         with dpg.menu(label="Settings"):
             dpg.add_menu_item(label="Toggle Fullscreen", callback=lambda: dpg.toggle_viewport_fullscreen())
     with dpg.table(header_row=False, no_host_extendX=True, delay_search=True, borders_innerH=True, borders_outerH=True, borders_innerV=True, borders_outerV=True, context_menu_in_body=True, row_background=True, policy=dpg.mvTable_SizingFixedFit, width=200, height=800, scrollY=True):
