@@ -14,6 +14,7 @@ seen_nodes = []
 node_label = defaultdict()
 edge_label = defaultdict()
 dpg.create_context()
+
 dpg.create_viewport(title="SAD3E - Run")
 
 width, height, channels, data = dpg.load_image(
@@ -23,7 +24,7 @@ width, height, channels, data = dpg.load_image(
 with dpg.texture_registry():
     dpg.add_static_texture(width, height, data, tag="image_id")
 
-with dpg.window(no_collapse=True, width=1000, height=800) as window:
+with dpg.window(no_collapse=True, width=1000, height=800, tag="window") as window:
     # add menu bar to window
     with dpg.menu_bar(label="menu_bar"):
         with dpg.menu(label="File"):
@@ -46,16 +47,21 @@ with dpg.window(no_collapse=True, width=1000, height=800) as window:
                     # Check if edge was already drew
                     if dst not in seen_nodes:
                         edge_label[(node, dst)] = dpg.draw_line((graph[node].location[0], graph[node].location[1]),
-                            (graph[dst].location[0], graph[dst].location[1]), color=BLUE)
+                                                                (graph[dst].location[0], graph[dst].location[1]),
+                                                                color=BLUE)
                 # First draw edges and then the nodes
                 node_label[node] = dpg.draw_circle(center=(graph[node].location[0], graph[node].location[1]), radius=8,
-                    fill=ORANGE, tag=node)
-                dpg.draw_text(pos=(graph[node].location[0] - 5, graph[node].location[1] - 5), text=node, color=BLACK)
+                                                   fill=ORANGE, tag=node)
+                dpg.draw_text(pos=(graph[node].location[0] - 5, graph[node].location[1] - 5), text=node, color=BLACK,
+                              tag=node + "_name")
+    #for node in graph:
+     #   dpg.add_text(node, pos=(graph[node].location[0] - 5, graph[node].location[1] - 5), color=BLACK,
+      #               parent="window", tag=node + "_name")
 
-                ## CHECK ERROR
-                #with dpg.tooltip(parent=node):
-                 #   dpg.draw_text(pos=(graph[node].location[0] - 5, graph[node].location[1] - 5),
-                  #                text="Next Node: " + graph[node].next_node)
+        ## CHECK ERROR
+        with dpg.tooltip(parent=node + "_name"):
+            dpg.add_text("Next Node: " + graph[node].next_node)
+                         #pos=(graph[node].location[0] - 5, graph[node].location[1] - 5))
 
 dpg.setup_dearpygui()
 dpg.show_viewport()

@@ -83,6 +83,8 @@ def dijkstra_distance(graph, src_node):
 
 # Set nearest exit and next node
 def set_nearest_exit(graph, exit_array):
+    for node in graph:
+        graph[node].set_distance(BIGINT)
     for exit in exit_array:
         distance, prev = dijkstra_distance(graph, exit)
         for node in graph:
@@ -146,8 +148,8 @@ def same_floor(center, node_location):
     return center[2] == node_location[2]
 
 
-def get_center(nodeA, nodeB):
-    center = ((nodeA[0] + nodeB[0]) / 2, (nodeA[1] + nodeB[1]) / 2, nodeA[2])
+def get_center(nodeA_location, nodeB_location):
+    center = ((nodeA_location[0] + nodeB_location[0]) / 2, (nodeA_location[1] + nodeB_location[1]) / 2, (nodeA_location[2] + nodeB_location[2]) / 2)
     return center
 
 
