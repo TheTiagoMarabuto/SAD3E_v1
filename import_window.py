@@ -38,9 +38,42 @@ def show_import_window(graph_file_path, plant_path, exit_array):
         node1 = dpg.get_value("node1_combo")
         node2 = dpg.get_value("node2_combo")
         intensity = dpg.get_value("input_intensity")
-        # Add to active fires
-        active_fires.append(node1 + "," + node2 + "," + str(intensity))
-        dpg.configure_item("active_fires_list", items=active_fires)
+
+        # check if list is not empty
+        if active_fires:
+            for act_fire in active_fires:
+                node1_aux, node2_aux, intensity_aux = act_fire.split(",")
+                # check if fire already exists
+                if (node1, node2) == (node1_aux, node2_aux) or (node1, node2) == (node2_aux, node1_aux):
+                    # same nodes, same intensity
+                    if intensity == int(intensity_aux):
+                        print("INFO: Fire is already active")
+                        # Close Popup
+                        dpg.configure_item("add_fire_popup", show=False)
+
+                        # Set widgets to initial states
+                        dpg.configure_item("node1_combo", default_value="")
+                        dpg.configure_item("node2_combo", show=False)
+                        dpg.configure_item("input_intensity", default_value=0, show=False)
+
+                    # same nodes, different intensity
+                    else:
+                        active_fires.remove(node1 + "," + node2 + "," + intensity_aux)  # remove fire from fire list
+                        active_fires.append(node1 + "," + node2 + "," + str(intensity))  # add fire to fire list
+                        dpg.configure_item("active_fires_list", items=active_fires)  # update active fires combo
+
+                # Fire doesn't exist
+                else:
+                    # Add to active fires
+                    if node1 + "," + node2 + "," + str(intensity) not in active_fires and node1 + "," + node2 + "," + str(intensity) not in active_fires:
+                        active_fires.append(node1 + "," + node2 + "," + str(intensity))
+                        dpg.configure_item("active_fires_list", items=active_fires)
+
+        else:
+            # Add to active fires
+            if node1 + "," + node2 + "," + str(intensity) not in active_fires and node1 + "," + node2 + "," + str(intensity) not in active_fires:
+                active_fires.append(node1 + "," + node2 + "," + str(intensity))
+                dpg.configure_item("active_fires_list", items=active_fires)
 
         # Compute affected areas
         dij.affected_area(graph, graph[node1], graph[node2], intensity, exit_array)
@@ -51,7 +84,6 @@ def show_import_window(graph_file_path, plant_path, exit_array):
             dpg.configure_item(tag, default_value=value)
 
         # show fire image to graph
-        # dpg.add_image_series("fire", (center[0] - 5, center[1] - 5), (center[0] + 5, center[1] + 5), tag="fire_" + node1 + "_" + node2, parent="plot")
         dpg.configure_item("fire_" + node1 + "_" + node2, show=True)
 
         # Close Popup
