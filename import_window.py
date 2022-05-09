@@ -7,17 +7,20 @@ seen_nodes = []
 
 
 def show_import_window(graph_file_path, plant_path, exit_array):
-    graph = dij.build_graph(t.read_json(graph_file_path))  # build graph from .json filename
-    dij.set_nearest_exit(graph, exit_array)  # run dijkstra and calculate all distances and paths
-
     ######################### VARIABLES #########################
     active_fires = []
-
+    graph = dij.build_graph(t.read_json(graph_file_path))  # build graph from .json filename
+    dij.set_nearest_exit(graph, exit_array)  # run dijkstra and calculate all distances and paths
     #############################################################
 
     ######################### FUNCTIONS #########################
-    # config function for choosing fire between nodes and intensity
+    # config function
     def _config(sender, app_data):
+        if sender == "run_simulation":
+            dpg.configure_item("fire_menu", enabled=True)
+            dpg.configure_item("information_table", show=True)
+        if sender == "stop_simulation":
+            dpg.configure_item("fire_menu", enabled=False)
         if sender == "node1_combo":
             dpg.configure_item("node2_combo", items=[edge[0] for edge in graph[app_data].edges], default_value="", show=True)
         if sender == "node2_combo":
@@ -159,11 +162,11 @@ def show_import_window(graph_file_path, plant_path, exit_array):
 
             # Run Menu
             with dpg.menu(tag="run_menu", label="Run"):
-                dpg.add_menu_item(tag="run_simulation", label="Run Simulation")
-                dpg.add_menu_item(tag="stop_simulation", label="Stop Simulation")
+                dpg.add_menu_item(tag="run_simulation", label="Run Simulation", callback=_config)
+                dpg.add_menu_item(tag="stop_simulation", label="Stop Simulation", callback=_config)
 
             # Fire Menu
-            with dpg.menu(tag="fire_menu", label="Fire"):
+            with dpg.menu(tag="fire_menu", label="Fire", enabled=False):
                 # Add Fire Action
                 dpg.add_menu_item(tag="add_fire", label="Add Fire", callback=lambda: dpg.configure_item("add_fire_popup", show=True))
 
@@ -178,7 +181,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
                 dpg.add_menu_item(tag="toggle_fullscreen", label="Toggle Full screen", callback=lambda: dpg.toggle_viewport_fullscreen())
 
         # Next Node and Distance to Exit information TABLE
-        with dpg.table(tag="information_table", label="Information Table", width=200, height=800, header_row=False, no_host_extendX=True, delay_search=True, borders_innerH=True, borders_outerH=True, borders_innerV=True, borders_outerV=True, context_menu_in_body=True, row_background=True, policy=dpg.mvTable_SizingFixedFit, scrollY=True):
+        with dpg.table(tag="information_table", label="Information Table", width=200, height=800, header_row=False, no_host_extendX=True, delay_search=True, borders_innerH=True, borders_outerH=True, borders_innerV=True, borders_outerV=True, context_menu_in_body=True, row_background=True, policy=dpg.mvTable_SizingFixedFit, scrollY=True, show=False):
 
             # Table with only one collumn
             dpg.add_table_column(width=200)
@@ -203,7 +206,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
                         # Check if edge was already drew
                         if dst not in seen_nodes:
                             # Print edges
-                            dpg.add_line_series((graph[node].location[0], graph[dst].location[0]), (graph[node].location[1], graph[dst].location[1]))
+                            dpg.add_line_series((3*graph[node].location[0], 3*graph[dst].location[0]), (3*graph[node].location[1], 3*graph[dst].location[1]))
                             # get middle of edge
                             center = dij.get_center(graph[node].location, graph[dst].location)
                             # add fire image to graph
@@ -211,8 +214,9 @@ def show_import_window(graph_file_path, plant_path, exit_array):
                 # Go through nodes
                 for node in graph:
                     # Print nodes
-                    dpg.add_image_series("sphere", (graph[node].location[0] - NODE_SIZE / 2, graph[node].location[1] - NODE_SIZE / 2), (
-                        graph[node].location[0] + NODE_SIZE / 2, graph[node].location[1] + NODE_SIZE / 2), tag=node + "_image")  # Add label= to be able to hide nodes
+
+                    dpg.add_image_series("sphere", (3*graph[node].location[0] - NODE_SIZE / 2, 3*graph[node].location[1] - NODE_SIZE / 2), (
+                        3*graph[node].location[0] + NODE_SIZE / 2, 3*graph[node].location[1] + NODE_SIZE / 2), tag=node + "_image")  # Add label= to be able to hide nodes
             # Go through nodes
             for node in graph:
                 # Print Node Name
