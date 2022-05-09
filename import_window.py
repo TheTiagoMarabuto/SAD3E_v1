@@ -12,6 +12,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
 
     ######################### VARIABLES #########################
     active_fires = []
+
     #############################################################
 
     ######################### FUNCTIONS #########################
@@ -25,6 +26,12 @@ def show_import_window(graph_file_path, plant_path, exit_array):
             dpg.configure_item("add_fire_button", show=True)
         if sender == "active_fires_list":
             dpg.configure_item("remove_fire_button", show=True)
+        if sender == "cancel_button":
+            dpg.configure_item("add_fire_popup", show=False)
+            # Set widgets to initial states
+            dpg.configure_item("node1_combo", default_value="")
+            dpg.configure_item("node2_combo", show=False)
+            dpg.configure_item("input_intensity", default_value=0, show=False)
 
     def _add_fire(sender):
         # get values from widgets
@@ -32,7 +39,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
         node2 = dpg.get_value("node2_combo")
         intensity = dpg.get_value("input_intensity")
         # Add to active fires
-        active_fires.append((node1, node2, intensity))
+        active_fires.append(node1 + "," + node2 + "," + str(intensity))
         dpg.configure_item("active_fires_list", items=active_fires)
 
         # Compute affected areas
@@ -44,7 +51,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
             dpg.configure_item(tag, default_value=value)
 
         # show fire image to graph
-        #dpg.add_image_series("fire", (center[0] - 5, center[1] - 5), (center[0] + 5, center[1] + 5), tag="fire_" + node1 + "_" + node2, parent="plot")
+        # dpg.add_image_series("fire", (center[0] - 5, center[1] - 5), (center[0] + 5, center[1] + 5), tag="fire_" + node1 + "_" + node2, parent="plot")
         dpg.configure_item("fire_" + node1 + "_" + node2, show=True)
 
         # Close Popup
@@ -57,17 +64,21 @@ def show_import_window(graph_file_path, plant_path, exit_array):
 
     def _remove_fire(sender):
         # Get fire location
-        node1 = dpg.get_value("active_fires_list")[0]
-        node2 = dpg.get_value("active_fires_list")[1]
+        fire = (dpg.get_value("active_fires_list").split(","))
+        node1 = fire[0]
+        node2 = fire[1]
 
+        # Remove fire image and affected area
+        dpg.configure_item("fire_" + node1 + "_" + node2, show=False)  # Remove fire image
+        dij.remove_fire(graph, graph[node1], graph[node2])  # Remove affected area
+        active_fires.remove(dpg.get_value("active_fires_list"))
+        dpg.configure_item("active_fires_list", items=active_fires, default_value="")
 
-        # Remove fire and affected area
-        label="fire_" + node1 + "_" + node2
-        dij.remove_fire(graph, graph[node1], graph[node2])
-
-        #dpg.configure_item("fire_" + node1 + "_" + node2, show=False)    <--PROBLEM HERE
-
-
+        # Update information table
+        for node in graph:
+            tag = node + "_info"
+            value = "Node: " + node + "->" + graph[node].next_node + "\ndistance to exit: " + str(graph[node].distance_to_exit) + "(" + graph[node].exit + ")"
+            dpg.configure_item(tag, default_value=value)
 
     #############################################################
 
@@ -92,7 +103,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
         dpg.add_combo(tag="node2_combo", label="Node 2", default_value="", width=50, show=False, callback=_config)
 
         # Hazard intensity setting
-        dpg.add_input_int(tag="input_intensity", label="Hazard Intensity", width=100, show=False, callback=_config)
+        dpg.add_input_int(tag="input_intensity", label="Hazard Intensity", width=100, show=False, callback=_config, min_value=50, min_clamped=True)  # input intensity between 50 and 100
         # Space between inputs and buttons
         dpg.add_separator()
         dpg.add_spacer()
@@ -101,7 +112,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
         with dpg.group(horizontal=True):
             dpg.add_button(tag="add_fire_button", label="Add Fire", show=False, callback=_add_fire)
 
-            dpg.add_button(tag="cancel_button", label="Cancel", callback=lambda: dpg.configure_item("add_fire_popup", show=False))
+            dpg.add_button(tag="cancel_button", label="Cancel", callback=_config)
 
     # ###########################---------------------------------------############################
 
