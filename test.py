@@ -7,7 +7,7 @@ dpg.create_context()
 
 #demo.show_demo()
 #show_import_window("/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/edges.json", '/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/images/feup_planta_900.png', ["U", "S"])
-show_new_window('/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/images/feup_planta_900.png')
+show_new_window('C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\SAD3E_v1\\images\\feup_planta_900.png')
 dpg.create_viewport(title='SAD3E', width=1200, height=800)
 dpg.setup_dearpygui()
 dpg.show_viewport()
