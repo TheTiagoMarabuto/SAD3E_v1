@@ -17,7 +17,7 @@ def show_new_window(plant_path):
     # ##############################################################################################
     # ###########################-------------   TEXTURES  -------------##############################
     width, height, channels, data = dpg.load_image(plant_path)
-    width1, height1, channels1, data1 = dpg.load_image('/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/images/esfera.png')
+    width1, height1, channels1, data1 = dpg.load_image('C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\SAD3E_v1\\images\\node.png')
 
     with dpg.texture_registry():
         dpg.add_static_texture(width, height, data, tag="plant_id")
@@ -43,6 +43,14 @@ def show_new_window(plant_path):
         if sender == "edges_menu":
             dpg.configure_item("edges_listbox1", items=[node for node in graph])
             dpg.configure_item("add_edge_window", show=True)
+        if sender == "print_graph_button":
+            if graph:
+                print("Printing  Graph:")
+                for node in graph:
+                    print(node + str(graph[node].location))
+                print("____ END ____")
+            else:
+                print("Graph still empty!")
 
 
     def _add_node(sender):
@@ -92,7 +100,7 @@ def show_new_window(plant_path):
         list = [node for node in graph]
         list.remove(app_data)
         if graph[app_data].edges:
-            for dst in graph[app_data].edges[0]:
+            for dst, weight, hazard in graph[app_data].edges:
                 list.remove(dst)
         dpg.configure_item("edges_listbox2", items=list)
 
@@ -105,23 +113,14 @@ def show_new_window(plant_path):
 
     def draw_node(node_pos, parent, node_name):
         dpg.draw_image("sphere", (node_pos[0] - 20, node_pos[1] - 40), (node_pos[0], node_pos[1] - 20), parent=parent, tag=node_name + "_image")
-        dpg.draw_text((node_pos[0], node_pos[1] - 40), node_name, parent=parent, tag=node_name + "_text", color=(255, 0, 0), size=20)
+        dpg.draw_text((node_pos[0], node_pos[1] - 40), node_name, parent=parent, tag=node_name + "_text", color=(0, 51, 51), size=20)
         write_to_graph(node_name, node_pos)
 
     def write_to_graph(node_name, pos):
         graph[node_name].name = node_name
         graph[node_name].location = (pos[0]-10, pos[1]-27, floor)
 
-    def print_graph():
-        print("Printing  Graph:")
-        for node in graph:
-            print(node + str(graph[node].location))
-        print("____ END ____")
 
-
-    def does_edge_exist(node1,node2):
-        if (edge for edge in graph[node1].edges if edge[0] == node2):
-            a=5
     # ##############################################################################################
     # ###########################-------------   HANDLERS  -------------############################
     with dpg.handler_registry(show=False) as handler:
@@ -144,6 +143,10 @@ def show_new_window(plant_path):
                 dpg.add_menu_item(tag="remove_node", label="Remove Node", callback=lambda: dpg.configure_item("remove_node_window", show=True))
 
             dpg.add_menu_item(tag="edges_menu", label="Edges",callback=_config)
+            with dpg.menu(tag="grapg_menu", label="Graph"):
+                dpg.add_menu_item(tag="print_graph_button", label="Print Graph", callback=_config)
+                dpg.add_menu_item(tag="export_graph", label="Export", callback=lambda: dpg.configure_item("save_graph_window", show=True))
+
 
         with dpg.draw_layer(tag="draw_graph_layer", label="Draw Graph Layer", parent="main_window"):
             dpg.draw_image("plant_id", pmin=(0, 0), pmax=(1200, 800))
@@ -180,4 +183,9 @@ def show_new_window(plant_path):
                 dpg.add_text(tag="edge_exists_text", label="Edge\nalready\nexists!", show=False)
             dpg.add_listbox([""], tag="edges_listbox3", width=60, num_items=8)
             dpg.add_button(tag="remove_edge_button", label="Remove\n edge")
+
+    # ##############################################################################################
+    # ###########################----------- ADD EDGE WINDOW -----------############################
+    dpg.add_file_dialog(tag="save_graph_window", label="Save Graph", callback=_config, show=False, directory_selector=True)
+
     # ##############################################################################################
