@@ -2,23 +2,29 @@ import dearpygui.dearpygui as dpg
 
 dpg.create_context()
 
-def change_text(sender, app_data):
-    dpg.set_value("text item", f"Mouse Button ID: {app_data}")
+def callback(sender, app_data):
+    print("Sender: ", sender)
+    print("App Data: ", app_data)
 
-def visible_call(sender, app_data):
-    print("I'm visible")
+with dpg.file_dialog(directory_selector=False, show=False, callback=callback, tag="file_dialog_tag"):
+    dpg.add_file_extension(".*")
+    dpg.add_file_extension("", color=(150, 255, 150, 255))
+    dpg.add_file_extension(".cpp", color=(255, 255, 0, 255))
+    dpg.add_file_extension(".h", color=(255, 0, 255, 255))
+    dpg.add_file_extension(".py", color=(0, 255, 0, 255))
 
-with dpg.item_handler_registry(tag="widget handler") as handler:
-    dpg.add_item_clicked_handler(callback=change_text)
-    dpg.add_item_visible_handler(callback=visible_call)
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="fancy file dialog")
+        dpg.add_button(label="file")
+        dpg.add_button(label="dialog")
+    dpg.add_date_picker()
+    with dpg.child_window(height=100):
+        dpg.add_selectable(label="bookmark 1")
+        dpg.add_selectable(label="bookmark 2")
+        dpg.add_selectable(label="bookmark 3")
 
-with dpg.window(width=500, height=300, tag="window"):
-    dpg.add_text("Click me with any mouse button", tag="text item")
-    dpg.add_text("Close window with arrow to change visible state printing to console", tag="text item 2")
-
-# bind item handler registry to item
-dpg.bind_item_handler_registry("text item", "widget handler")
-dpg.bind_item_handler_registry("text item 2", "widget handler")
+with dpg.window(label="Tutorial", width=800, height=300):
+    dpg.add_button(label="File Selector", callback=lambda: dpg.show_item("file_dialog_tag"))
 
 dpg.create_viewport(title='Custom Title', width=800, height=600)
 dpg.setup_dearpygui()

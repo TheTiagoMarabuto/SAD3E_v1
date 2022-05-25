@@ -5,6 +5,7 @@ import dijkstra
 import networkx as nx
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import os
 import pylab
 
 
@@ -20,9 +21,11 @@ def create_json_file(filename):
 
 
 # writes dictionary to file with name filename
-def write_json(filename, mode, dict):
+def write_json(filename, mode, graph):
+    filename = os.path.basename(filename)
     file = open(filename, mode)
-    json.dump(dict, file, indent=2, sort_keys=True)
+    new_dict = defaultdict_to_dict(graph)
+    json.dump(new_dict, file)
     file.close()
 
 
@@ -36,9 +39,9 @@ def read_json(filename):
 
 def draw_graph(graph, fire_location=None):
     G = nx.Graph()
-    #G.add_node("Fire", pos=fire_location[0:2])
+    # G.add_node("Fire", pos=fire_location[0:2])
     for node in graph:
-        #name = node + "->" + graph[node].next_node
+        # name = node + "->" + graph[node].next_node
         G.add_node(node, pos=graph[node].location[0:2])
     seen_edges = defaultdict(int)
     for node in graph:
@@ -49,10 +52,9 @@ def draw_graph(graph, fire_location=None):
                 continue
             G.add_edge(node, dst, weight=weight * hazard)
 
-    edge_labels = dict([((u, v,), d['weight'])
-                        for u, v, d in G.edges(data=True)])
+    edge_labels = dict([((u, v,), d['weight']) for u, v, d in G.edges(data=True)])
     pos = nx.get_node_attributes(G, 'pos')
-    f, ax = plt.subplots(1,1)
+    f, ax = plt.subplots(1, 1)
     if fire_location:
         circle1 = plt.Circle(fire_location, dijkstra.BIG_R, color='yellow')
         circle2 = plt.Circle(fire_location, dijkstra.SMALL_R, color='orange')
@@ -60,8 +62,20 @@ def draw_graph(graph, fire_location=None):
         ax.add_patch(circle2)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=6, verticalalignment='bottom', bbox=dict(boxstyle='round', ec=(1.0, 1.0, 1.0), fc=(1.0, 1.0, 1.0), alpha=0))
     nx.draw(G, pos, node_size=180, with_labels=True, edge_cmap=plt.cm.Reds, font_size=8)
-    #pylab.show()
+    # pylab.show()
     plt.tight_layout()
     plt.axis("off")
 
     plt.show()
+
+
+def defaultdict_to_dict(graph):
+    graph_dict = {node: {"dst": [], "weight": [], "hazard": [], "location": graph[node].location} for node in graph}
+
+    for node in graph:
+        for dst, weight, hazard in graph[node].edges:
+            graph_dict[node]["dst"].append(dst)
+            graph_dict[node]["weight"].append(weight)
+            graph_dict[node]["hazard"].append(hazard)
+
+    return graph_dict
