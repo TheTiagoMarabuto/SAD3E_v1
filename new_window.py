@@ -34,18 +34,18 @@ def show_new_window(plant_path):
             ratio = 1200 / picture_width
             if ratio * picture_height >= 800:
                 ratio = 800 / picture_height
-                return (picture_width * ratio, 800)
+                return picture_width * ratio, 800
             else:
-                return (1200, picture_height * ratio)
+                return 1200, picture_height * ratio
         if picture_height >= 800:
             ratio = 800 / picture_height
             if ratio * picture_width >= 1200:
                 ratio = 1200 / picture_width
-                return (1200, picture_height * ratio)
+                return 1200, picture_height * ratio
             else:
-                return (picture_width * ratio, 800)
+                return picture_width * ratio, 800
         else:
-            return (1200, 800)
+            return 1200, 800
 
     def _config(sender, app_data, user_data):
         if sender == "add_node_click":
@@ -74,10 +74,11 @@ def show_new_window(plant_path):
             else:
                 print("Graph still empty!")
         if sender == "save_graph_window":
+
+            #t.picture_to_json(app_data.get("file_path_name"), "node_picture", (width1, height1, channels1, data1))
+            #t.picture_to_json(app_data.get("file_path_name"), "plant", (width, height, channels, data))
             t.write_json(app_data.get("file_path_name") + user_data, "w", graph)
 
-    def _add_node(sender):
-        a = 5
 
     def _remove_node(sender, app_data, user_data):
         # delete node image
@@ -169,10 +170,11 @@ def show_new_window(plant_path):
                 dpg.add_menu_item(tag="remove_node", label="Remove Node", callback=lambda: dpg.configure_item("remove_node_window", show=True))
 
             dpg.add_menu_item(tag="edges_menu", label="Edges", callback=_config)
-            with dpg.menu(tag="grapg_menu", label="Graph"):
+            with dpg.menu(tag="graph_menu", label="Graph"):
                 dpg.add_menu_item(tag="print_graph_button", label="Print Graph", callback=_config)
                 dpg.add_menu_item(tag="export_graph", label="Export", callback=lambda: dpg.configure_item("save_graph_window", show=True))
 
+        # Draw layer bottom -> Plant ; middle -> edges ; top -> Nodes
         with dpg.draw_layer(tag="draw_graph_layer", label="Draw Graph Layer", parent="main_window"):
             dpg.draw_image("plant_id", pmin=(0, 0), pmax=get_draw_image_size(width, height))
         dpg.add_draw_layer(tag="edges_draw_layer", parent="main_window")

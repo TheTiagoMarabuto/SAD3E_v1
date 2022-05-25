@@ -9,6 +9,7 @@ seen_nodes = []
 def show_import_window(graph_file_path, plant_path, exit_array):
     ######################### VARIABLES #########################
     active_fires = []
+    exit_list=[]
     graph = dij.build_graph(t.read_json(graph_file_path))  # build graph from .json filename
     dij.set_nearest_exit(graph, exit_array)  # run dijkstra and calculate all distances and paths
     #############################################################
@@ -16,6 +17,23 @@ def show_import_window(graph_file_path, plant_path, exit_array):
     ######################### FUNCTIONS #########################
     # config function
     def _config(sender, app_data):
+        if sender == "add_exit_array":
+            a=5
+        if sender == "node_listbox":
+            exit_list.append(app_data)
+            dpg.configure_item("exits_listbox", items=exit_list)
+            list_aux=[node for node in graph]
+            for i in exit_list:
+                if i in list_aux:
+                    list_aux.remove(i)
+            dpg.configure_item("node_listbox", items=list_aux)
+
+        if sender == "add_exits_button":
+            exit_array=dpg.get_item_configuration("exits_listbox").get("items")
+            dij.set_nearest_exit(graph, exit_array)
+            dpg.configure_item("choose_exit_window", show=False)
+            dpg.configure_item("run_simulation", enabled=True)
+
         if sender == "run_simulation":
             dpg.configure_item("fire_menu", enabled=True)
             dpg.configure_item("information_table", show=True)
@@ -119,6 +137,7 @@ def show_import_window(graph_file_path, plant_path, exit_array):
 
     dpg.create_context()
     #  load images (Plant, node, fire)
+
     width, height, channels, data = dpg.load_image(plant_path)
     width1, height1, channels1, data1 = dpg.load_image('/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/images/esfera.png')
     width2, height2, channels2, data2 = dpg.load_image('/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/images/fire.png')
@@ -162,8 +181,9 @@ def show_import_window(graph_file_path, plant_path, exit_array):
 
             # Run Menu
             with dpg.menu(tag="run_menu", label="Run"):
-                dpg.add_menu_item(tag="run_simulation", label="Run Simulation", callback=_config)
-                dpg.add_menu_item(tag="stop_simulation", label="Stop Simulation", callback=_config)
+                dpg.add_menu_item(tag="add_exit_array", label="Exits", callback=_config)
+                dpg.add_menu_item(tag="run_simulation", label="Run Simulation", callback=_config, enabled=False)
+                dpg.add_menu_item(tag="stop_simulation", label="Stop Simulation", callback=_config, enabled=False)
 
             # Fire Menu
             with dpg.menu(tag="fire_menu", label="Fire", enabled=False):
@@ -222,4 +242,11 @@ def show_import_window(graph_file_path, plant_path, exit_array):
                 # Print Node Name
                 dpg.add_plot_annotation(label=node, default_value=graph[node].location[:2], offset=(0, 0), color=[0, 0, 255])
 
+    # ###########################---------------------------------------############################
+    # ###########################------------- CHOOSE EXIT WINDOW -------------############################
+    with dpg.window(tag="choose_exit_window", label="Choose Exits", width=100, height=200, show=False):
+        with dpg.group(horizontal=True):
+            dpg.add_listbox([node for node in graph], tag="node_listbox", label="Nodes", callback=_config)
+            dpg.add_listbox([], tag="exits_listbox", label="Nodes")
+            dpg.add_button(tag="add_exits_button", label="Add Exits", callback=_config)
     # ###########################---------------------------------------############################
