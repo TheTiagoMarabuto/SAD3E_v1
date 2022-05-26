@@ -3,16 +3,21 @@ from collections import defaultdict
 import dearpygui.dearpygui as dpg
 import tools as t
 import dijkstra as dij
+import os
 
-node_image_path = "/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/images/node.png"
+images_path = os.path.join(os.getcwd(), "Images")
+node_image_path = os.path.join(images_path, "node.png")
 
+font_dir = os.path.join(os.getcwd(), "Fonts")
+default_font_path = os.path.join(font_dir, "ProductSans-Regular.ttf")
+second_font_path = os.path.join(font_dir, "ProductSans-Bold.ttf")
 
 def show_new_window(plant_path):
     dpg.create_context()
     # ###########################-------------   FONT ASSIGNMENT  -------------########################
     with dpg.font_registry():
-        default_font = dpg.add_font("/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/Fonts/ProductSans-Regular.ttf", 15)
-        second_font = dpg.add_font("/Users/tiagomarabuto/PycharmProjects/SAD3E_v1/Fonts/ProductSans-Bold.ttf", 20)
+        default_font = dpg.add_font(default_font_path, 15)
+        second_font = dpg.add_font(second_font_path, 20)
     dpg.bind_font(default_font)
     # ################################################################################################
     # ###########################-------------   VARIABLES  -------------#############################
@@ -25,7 +30,7 @@ def show_new_window(plant_path):
 
     with dpg.texture_registry():
         dpg.add_static_texture(width, height, data, tag="plant_id")
-        dpg.add_static_texture(width1, height1, data1, tag="sphere")
+        dpg.add_static_texture(width1, height1, data1, tag="node_pic")
 
     # ##############################################################################################
     # ###########################-------------   FUNCTIONS  -------------############################
@@ -74,10 +79,8 @@ def show_new_window(plant_path):
             else:
                 print("Graph still empty!")
         if sender == "save_graph_window":
-
-            #t.picture_to_json(app_data.get("file_path_name"), "node_picture", (width1, height1, channels1, data1))
-            #t.picture_to_json(app_data.get("file_path_name"), "plant", (width, height, channels, data))
-            t.write_json(app_data.get("file_path_name") + user_data, "w", graph)
+            project_dir = app_data.get("file_path_name")
+            t.save_project_folder(project_dir, plant_path, graph)
 
 
     def _remove_node(sender, app_data, user_data):
@@ -114,8 +117,7 @@ def show_new_window(plant_path):
             graph[node1].edges.append((node2, distance, 1))
             graph[node2].edges.append((node1, distance, 1))
             update_listbox3_items()
-            dpg.draw_line(graph[node1].location[:2], graph[node2].location[0:2], tag=node1 + "_" + node2 + "_edge", parent="edges_draw_layer", color=(0, 0, 0), thickness=5)
-
+            draw_edge(node1, node2, "edges_draw_layer")
         else:
             dpg.configure_item("edge_exists_text", show=True)
 
@@ -137,10 +139,13 @@ def show_new_window(plant_path):
         dpg.configure_item("edges_listbox3", items=list)
 
     def draw_node(node_pos, parent, node_name):
-        dpg.draw_image("sphere", (node_pos[0] - 20, node_pos[1] - 40), (node_pos[0], node_pos[1] - 20), parent=parent, tag=node_name + "_image")
+        dpg.draw_image("node_pic", (node_pos[0] - 20, node_pos[1] - 40), (node_pos[0], node_pos[1] - 20), parent=parent, tag=node_name + "_image")
         dpg.draw_text((node_pos[0], node_pos[1] - 40), node_name, parent=parent, tag=node_name + "_text", color=(170, 70, 130), size=20)
         dpg.bind_item_font(node_name + "_text", second_font)
         write_to_graph(node_name, node_pos)
+
+    def draw_edge(node1_name, node2_name, parent):
+        dpg.draw_line(graph[node1_name].location[:2], graph[node2_name].location[0:2], tag=node1_name + "_" + node2_name + "_edge", parent=parent, color=(0, 0, 0), thickness=5)
 
     def write_to_graph(node_name, pos):
         graph[node_name].name = node_name
@@ -213,7 +218,8 @@ def show_new_window(plant_path):
 
     # ##############################################################################################
     # ###########################----------- SAVE DIALOG -----------############################
-    with dpg.file_dialog(label="Save Graph", width=300, height=400, callback=_config, show=False, tag="save_graph_window", user_data=".json"):
-        dpg.add_file_extension("JSON(.json){.json}", color=(0, 255, 0, 255))
+    with dpg.file_dialog(label="Save Graph", width=300, height=400, callback=_config, show=False, tag="save_graph_window"):
+        #dpg.add_file_extension("JSON(.json){.json}", color=(0, 255, 0, 255))
+        a=5
 
     # #############################################################################################

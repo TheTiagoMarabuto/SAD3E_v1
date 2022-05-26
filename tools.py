@@ -6,6 +6,9 @@ import networkx as nx
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import os
+from zipfile import ZipFile
+import pathlib
+import shutil
 import pylab
 
 
@@ -22,15 +25,14 @@ def create_json_file(filename):
 
 # writes dictionary to file with name filename
 def write_json(filepath_object, mode, graph):
-    file = open(os.path.basename(filepath_object), mode)
+    file = open(filepath_object, mode)
     json.dump(graph_to_dict(graph), file)
     file.close()
 
 
 # save picture to json
 def picture_to_json(filepath_object, picture_tag, picture_data):
-
-    file = open(os.path.dirname(filepath_object)+"/pictures.json", "a")
+    file = open(os.path.dirname(filepath_object) + "/pictures.json", "a")
 
     picture_dict = {picture_tag: {"width": picture_data[0], "height": picture_data[1], "channels": picture_data[2], "data": picture_data[3]}}
     json.dump(picture_dict, file)
@@ -43,6 +45,17 @@ def read_json(filename):
     aux = json.load(file)
     file.close()
     return aux
+
+
+def save_project_folder(name_path, plant_path, graph):
+
+    dir = pathlib.Path(name_path)
+    dir.mkdir(parents=True, exist_ok=True)
+    write_json(os.path.join(dir, "graph.json"), "w", graph)
+
+    plant_ext = os.path.splitext(plant_path)[1]
+    plant = shutil.copy(plant_path, dir)
+    os.rename(plant, os.path.join(os.path.dirname(plant), "plant" + plant_ext))
 
 
 def draw_graph(graph, fire_location=None):

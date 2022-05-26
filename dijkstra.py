@@ -5,8 +5,8 @@ from collections import defaultdict
 from fibheap import *
 
 BIGINT = 1806199818061998
-SMALL_R = 20
-BIG_R = 40
+SMALL_R = 100
+BIG_R = 200
 
 
 class Node:
@@ -204,4 +204,14 @@ def affected_area(graph, nodeA, nodeB, hazard_intensity, exit_array):
     set_nearest_exit(graph, exit_array)
 
 def remove_fire(graph, nodeA, nodeB):
-    a=5
+    hazard_location = get_center(nodeA.location, nodeB.location)
+
+    seen_nodes = []
+    seen_edges = []
+
+    for node in graph:
+        if in_circle(hazard_location, BIG_R, graph[node].location):
+            for dst, weight, hazard in graph[node].edges:
+                index1 = graph[node].edges.index((dst, weight, hazard))
+                graph[node].edges.remove((dst, weight, hazard))
+                graph[node].edges.insert(index1, (dst, weight, 1))
