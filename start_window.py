@@ -61,9 +61,10 @@ def show_start_window():
                 dpg.add_button(tag="new_project_button", label="New Project", indent=40, width=200, callback=lambda: dpg.configure_item("plant_file_selector2", show=True))
                 dpg.add_button(tag="import_project_button", label="Import Project", width=200, callback=lambda: dpg.configure_item("project_selector", show=True))
             dpg.add_spacer(height=10)
-            with dpg.group(horizontal=True):
+            with dpg.group(horizontal=True, pos=(50,250)):
                 dpg.add_image("feup_texture", tag="feup_logo", width=200)
                 dpg.add_image("nibble_texture", tag="nibble_logo", width=200)
+
 
     # ##############################################################################################
     with dpg.file_dialog(label="Choose Plant image file", tag="plant_file_selector", show=False, callback=_config, width=500, height=500):

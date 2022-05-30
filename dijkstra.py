@@ -5,8 +5,8 @@ from collections import defaultdict
 from fibheap import *
 
 BIGINT = 1806199818061998
-SMALL_R = 100
-BIG_R = 200
+SMALL_R = 50
+BIG_R = 100
 
 
 class Node:

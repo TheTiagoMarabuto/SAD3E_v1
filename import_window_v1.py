@@ -12,7 +12,7 @@ fire_image_path = os.path.join(images_path, "fire.png")
 
 font_dir = os.path.join(os.getcwd(), "Fonts")
 default_font_path = os.path.join(font_dir, "ProductSans-Regular.ttf")
-second_font_path = os.path.join(font_dir, "ProductSans-Bold.ttf")
+second_font_path = os.path.join(font_dir, "Arial Black.ttf")
 
 
 
@@ -74,6 +74,17 @@ def show_import_window(project_path):
             return DRAW_LAYER_SIZE, 800
 
     def _config(sender, app_data):
+        if sender =="exits_listbox":
+            if app_data in exit_list:
+                exit_list.remove(app_data)
+                dpg.configure_item("exits_listbox", items=exit_list)
+                list_aux = [node for node in graph]
+                for i in exit_list:
+                    if i in list_aux:
+                        list_aux.remove(i)
+                list_aux.sort()
+                dpg.configure_item("node_listbox", items=list_aux)
+
         if sender == "node_listbox":
             exit_list.append(app_data)
             dpg.configure_item("exits_listbox", items=exit_list)
@@ -199,12 +210,13 @@ def show_import_window(project_path):
             dpg.configure_item(tag, default_value=value)
 
     def draw_node(node_pos, parent, node_name):
-        dpg.draw_image("node_pic", (node_pos[0] - NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), (node_pos[0] + NODE_SIZE / 2, node_pos[1] + NODE_SIZE / 2), parent=parent, tag=node_name + "_image")
-        dpg.draw_text((node_pos[0] + NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), node_name, parent=parent, tag=node_name + "_text", color=(170, 70, 130), size=20)
+        dpg.draw_circle(node_pos,NODE_SIZE / 2,parent=parent, tag=node_name + "_image", color=(255,255,255), fill=(0,144,81), thickness=3)
+        #dpg.draw_image("node_pic", (node_pos[0] - NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), (node_pos[0] + NODE_SIZE / 2, node_pos[1] + NODE_SIZE / 2), parent=parent, tag=node_name + "_image")
+        dpg.draw_text((node_pos[0] + NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), node_name, parent=parent, tag=node_name + "_text", color=(255, 50, 0), size=20) # color=(170, 70, 130), size=20)
         dpg.bind_item_font(node_name + "_text", second_font)
 
     def draw_edge(node1_name, node2_name, parent):
-        dpg.draw_line(graph[node1_name].location[:2], graph[node2_name].location[0:2], tag=node1_name + "_" + node2_name + "_edge", parent=parent, color=(0, 0, 0), thickness=5)
+        dpg.draw_line(graph[node1_name].location[:2], graph[node2_name].location[0:2], tag=node1_name + "_" + node2_name + "_edge", parent=parent, color=(0, 0, 0), thickness=3)
 
     def draw_fire(node1_name, node2_name, parent):
         # get middle of edge
@@ -268,7 +280,7 @@ def show_import_window(project_path):
             aux = [node for node in graph]
             aux.sort()
             dpg.add_listbox(aux, tag="node_listbox", callback=_config, width=50, num_items=6)
-            dpg.add_listbox([], tag="exits_listbox", width=50, num_items=6)
+            dpg.add_listbox([], tag="exits_listbox", width=50, num_items=6, callback=_config)
             dpg.add_button(tag="add_exits_button", label="Add Exits", callback=_config, width=60, pos=(120, 95))
     # ###########################---------------------------------------############################
     # ###########################------------- INFO TABLE WINDOW -------------############################
