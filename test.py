@@ -1,6 +1,6 @@
 import dearpygui.dearpygui as dpg
 import dearpygui.demo as demo
-from import_window_v1 import*
+from import_window import*
 from start_window import *
 from new_window import*
 dpg.create_context()
