@@ -105,6 +105,8 @@ def show_import_window(project_path):
                 tag = node + "_info"
                 value = "Node: " + node + "->" + graph[node].next_node + "\ndistance to exit: " + str(graph[node].distance_to_exit) + "(" + graph[node].exit + ")"
                 dpg.configure_item(tag, default_value=value)
+            for node in exit_array1:
+                dpg.configure_item(node + "_image", fill=(255,0,0))
 
         if sender == "run_simulation":
             dpg.configure_item("fire_menu", enabled=True)
@@ -212,7 +214,7 @@ def show_import_window(project_path):
     def draw_node(node_pos, parent, node_name):
         dpg.draw_circle(node_pos,NODE_SIZE / 2,parent=parent, tag=node_name + "_image", color=(255,255,255), fill=(0,144,81), thickness=3)
         #dpg.draw_image("node_pic", (node_pos[0] - NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), (node_pos[0] + NODE_SIZE / 2, node_pos[1] + NODE_SIZE / 2), parent=parent, tag=node_name + "_image")
-        dpg.draw_text((node_pos[0] + NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), node_name, parent=parent, tag=node_name + "_text", color=(255, 50, 0), size=20) # color=(170, 70, 130), size=20)
+        dpg.draw_text((node_pos[0] + NODE_SIZE / 2, node_pos[1] - NODE_SIZE / 2), node_name, parent=parent, tag=node_name + "_text", color=(0, 50, 255), size=22) # color=(170, 70, 130), size=20)
         dpg.bind_item_font(node_name + "_text", second_font)
 
     def draw_edge(node1_name, node2_name, parent):

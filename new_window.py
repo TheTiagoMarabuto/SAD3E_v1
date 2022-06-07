@@ -5,12 +5,20 @@ import tools as t
 import dijkstra as dij
 import os
 
+NODE_SIZE = 20
 images_path = os.path.join(os.getcwd(), "Images")
 node_image_path = os.path.join(images_path, "node.png")
 
 font_dir = os.path.join(os.getcwd(), "Fonts")
 default_font_path = os.path.join(font_dir, "ProductSans-Regular.ttf")
 second_font_path = os.path.join(font_dir, "ProductSans-Bold.ttf")
+
+def _on_window_close(sender, app_data, user_data):
+    dpg.delete_item(sender)
+    dpg.delete_item("plant_id")
+    dpg.delete_item("node_pic")
+    dpg.delete_item("add_node_window")
+
 
 def show_new_window(plant_path):
     dpg.create_context()
@@ -139,7 +147,8 @@ def show_new_window(plant_path):
         dpg.configure_item("edges_listbox3", items=list)
 
     def draw_node(node_pos, parent, node_name):
-        dpg.draw_image("node_pic", (node_pos[0] - 20, node_pos[1] - 40), (node_pos[0], node_pos[1] - 20), parent=parent, tag=node_name + "_image")
+        #dpg.draw_image("node_pic", (node_pos[0] - 20, node_pos[1] - 40), (node_pos[0], node_pos[1] - 20), parent=parent, tag=node_name + "_image")
+        dpg.draw_circle([node_pos[0]-10, node_pos[1]-30], NODE_SIZE / 2, parent=parent, tag=node_name + "_image", color=(255, 255, 255), fill=(0, 144, 81), thickness=3)
         dpg.draw_text((node_pos[0], node_pos[1] - 40), node_name, parent=parent, tag=node_name + "_text", color=(170, 70, 130), size=20)
         dpg.bind_item_font(node_name + "_text", second_font)
         write_to_graph(node_name, node_pos)
@@ -161,7 +170,7 @@ def show_new_window(plant_path):
     # ##############################################################################################
 
     # ###########################------------- MAIN WINDOW -------------############################
-    with dpg.window(tag="main_window", label="New Graph", width=1200, height=800, no_collapse=True, no_move=True):
+    with dpg.window(tag="main_window", label="New Graph", width=1200, height=800, no_collapse=True, no_move=True, on_close=_on_window_close):
         # add menu bar to window
         with dpg.menu_bar(tag="menu_bar", label="Menu Bar"):
             with dpg.menu(tag="edit_nodes", label="Nodes"):
