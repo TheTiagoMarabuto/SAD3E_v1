@@ -42,15 +42,12 @@ def build_graph(edges):
     graph = defaultdict(Node)
     seen_edges = defaultdict(int)
     for src in edges:
-        for dst, weight, hazard in zip(edges.get(src).get("dst"), edges.get(src).get("weight"),
-                                       edges.get(src).get("hazard")):
+        for dst, weight, hazard in zip(edges.get(src).get("dst"), edges.get(src).get("weight"), edges.get(src).get("hazard")):
             seen_edges[(src, dst)] += 1
             # seen_edges[(dst,src)] += 1
             if seen_edges[(src, dst)] > 1:  # checking for duplicated edge entries
                 continue
-            graph[src].edges.append((dst, weight, hazard))
-            # print(src, dst, weight, hazard)
-            # graph[dst].edges.append((src, weight, hazard))
+            graph[src].edges.append((dst, weight, hazard))  # print(src, dst, weight, hazard)  # graph[dst].edges.append((src, weight, hazard))
         graph[src].location = edges.get(src).get("location")
         graph[src].name = src
     return graph
@@ -163,8 +160,8 @@ def affected_area(graph, nodeA, nodeB, hazard_intensity, exit_array):
 
         if in_circle(hazard_location, SMALL_R, graph[node].location) and node not in seen_nodes:
             for dst, weight, hazard in graph[node].edges:
-                if ((node == nodeA.name and dst == nodeB.name) or (dst == nodeA.name and node == nodeB.name)) and (dst,
-                                                                                                                   node) not in seen_edges:  # ((hazard != 0.5 * hazard_intensity) and (hazard != 0.25 * hazard_intensity)):
+                if ((node == nodeA.name and dst == nodeB.name) or (dst == nodeA.name and node == nodeB.name)) and (
+                dst, node) not in seen_edges:  # ((hazard != 0.5 * hazard_intensity) and (hazard != 0.25 * hazard_intensity)):
                     index1 = graph[node].edges.index((dst, weight, hazard))
 
                     graph[node].edges.remove((dst, weight, hazard))
@@ -187,8 +184,7 @@ def affected_area(graph, nodeA, nodeB, hazard_intensity, exit_array):
         if in_circle(hazard_location, BIG_R, graph[node].location) and node not in seen_nodes:
             for dst, weight, hazard in graph[node].edges:
 
-                if (dst,
-                    node) not in seen_edges:  # (hazard != 0.5 * hazard_intensity) and (hazard != 0.25 * hazard_intensity):
+                if (dst, node) not in seen_edges:  # (hazard != 0.5 * hazard_intensity) and (hazard != 0.25 * hazard_intensity):
                     index1 = graph[node].edges.index((dst, weight, hazard))
 
                     graph[node].edges.remove((dst, weight, hazard))
@@ -203,6 +199,7 @@ def affected_area(graph, nodeA, nodeB, hazard_intensity, exit_array):
 
     set_nearest_exit(graph, exit_array)
 
+
 def remove_fire(graph, nodeA, nodeB):
     hazard_location = get_center(nodeA.location, nodeB.location)
 
@@ -215,3 +212,13 @@ def remove_fire(graph, nodeA, nodeB):
                 index1 = graph[node].edges.index((dst, weight, hazard))
                 graph[node].edges.remove((dst, weight, hazard))
                 graph[node].edges.insert(index1, (dst, weight, 1))
+
+
+def get_edges(graph):
+    edges = []
+    for node in graph:
+        for dst, weight, hazard in graph[node].edges:
+            if (node, dst) not in edges and (dst, node) not in edges:
+                edges.append((node, dst))
+
+    return edges
